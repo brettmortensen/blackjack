@@ -41,9 +41,34 @@ func newDeck() *Deck {
 	return &Deck{cards: cards}
 }
 
+type Hand struct {
+	cards []Card
+}
+
+func newHand(deck *Deck) *Hand {
+	hand := Hand{}
+	hand.drawCard(deck)
+	hand.drawCard(deck)
+	return &hand
+}
+
+func (hand *Hand) drawCard(deck *Deck) Card {
+	var card = deck.cards[0]
+	deck.cards = deck.cards[1:]
+	hand.cards = append(hand.cards, card)
+	return card
+}
+
 func main() {
 	fmt.Println("Welcome to Blackjack!\n")
 	var deck = newDeck()
+	fmt.Println(deck)
+	fmt.Printf("Deck size: %v\n", len(deck.cards))
+
+	var hand = newHand(deck)
+	fmt.Println(hand)
+	fmt.Printf("Hand size: %v\n", len(hand.cards))
+
 	fmt.Println(deck)
 	fmt.Printf("Deck size: %v\n", len(deck.cards))
 }
