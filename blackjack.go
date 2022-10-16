@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 )
@@ -107,24 +108,87 @@ func (hand *Hand) value() int {
 }
 
 func main() {
-	fmt.Println("Welcome to Blackjack!\n")
+	fmt.Println("Welcome to Go Blackjack!\n")
+
+	fmt.Println("Shuffling deck...\n")
+	time.Sleep(time.Second)
 	var deck = newDeck()
-	fmt.Println(deck)
-	fmt.Printf("Deck size: %v\n", len(deck.cards))
 
+	fmt.Println("Dealing cards...\n")
+	time.Sleep(time.Second)
 	var usersHand = newHand(deck)
-	fmt.Println(usersHand)
-	fmt.Printf("User's hand size: %v\n", len(usersHand.cards))
-	fmt.Printf("User's hand value %d\n", usersHand.value())
-
-	fmt.Println(deck)
-	fmt.Printf("Deck size: %v\n", len(deck.cards))
-
 	var dealersHand = newHand(deck)
-	fmt.Println(dealersHand)
-	fmt.Printf("Dealer's hand size: %v\n", len(dealersHand.cards))
-	fmt.Printf("Dealer's hand value %d\n", dealersHand.value())
 
-	fmt.Println(deck)
-	fmt.Printf("Deck size: %v\n", len(deck.cards))
+	fmt.Println("Dealer peeks at their second card...\n")
+	time.Sleep(time.Second)
+
+	var input string
+
+	fmt.Printf("Dealer's hand: %v\n", dealersHand.cards[0])
+	fmt.Printf("Your hand: %v\n", usersHand.cards)
+
+	dealersHandValue := dealersHand.value()
+	usersHandValue := usersHand.value()
+
+	if usersHandValue == 21 {
+		fmt.Println("You are dealt blackjack, you win!")
+		os.Exit(0)
+	} else if dealersHandValue == 21 {
+		fmt.Printf("Dealer's hand: %v\n", dealersHand.cards)
+		fmt.Println("Dealer is dealt blackjack, dealer wins!")
+		os.Exit(0)
+	}
+
+	for {
+		fmt.Print("(h)it or (s)tand?: ")
+		fmt.Scan(&input)
+		fmt.Println()
+
+		switch input {
+		case "h":
+			fmt.Printf("You receive the card: %v\n\n", usersHand.drawCard(deck))
+			time.Sleep(time.Second)
+			fmt.Printf("Your hand: %v\n", usersHand.cards)
+
+			if usersHand.value() > 21 {
+				fmt.Printf("You bust at %d, dealer wins!\n", usersHand.value())
+				os.Exit(0)
+			} else if usersHand.value() == 21 {
+				fmt.Println("You get blackjack, you win!")
+				os.Exit(0)
+			}
+		case "s":
+			fmt.Printf("Dealer flips over their second card, dealer's hand: %v\n", dealersHand.cards)
+
+			for {
+				fmt.Printf("Dealer receives the card: %v\n\n", dealersHand.drawCard(deck))
+				time.Sleep(time.Second)
+				fmt.Printf("Dealer's hand: %v\n", dealersHand.cards)
+
+				dealersHandValue := dealersHand.value()
+				usersHandValue := usersHand.value()
+
+				if dealersHandValue > 21 {
+					fmt.Printf("Dealer busts at %d, you win!\n", dealersHandValue)
+					os.Exit(0)
+				} else if dealersHandValue == 21 {
+					fmt.Println("Dealer gets blackjack, dealer wins!")
+					os.Exit(0)
+				} else if dealersHandValue >= 17 && dealersHandValue <= 21 {
+					if dealersHandValue > usersHandValue {
+						fmt.Printf("Dealer's %d beats your %d, dealer wins!\n", dealersHandValue, usersHandValue)
+						os.Exit(0)
+					} else if dealersHandValue == usersHandValue {
+						fmt.Printf("Dealer's %d ties your %d, push!\n", dealersHandValue, usersHandValue)
+						os.Exit(0)
+					} else {
+						fmt.Printf("Your %d beats dealer's %d, you win!\n", usersHandValue, dealersHandValue)
+						os.Exit(0)
+					}
+				}
+			}
+		default:
+			fmt.Println("Not a valid choice. Please enter 'h' or 's'.")
+		}
+	}
 }
