@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -59,15 +60,70 @@ func (hand *Hand) drawCard(deck *Deck) Card {
 	return card
 }
 
+func (hand *Hand) value() int {
+	var aceCount int
+	var value int
+
+	for _, card := range hand.cards {
+		switch card.value {
+		case "A":
+			aceCount = aceCount + 1
+		case "2", "3", "4", "5", "6", "7", "8", "9", "10":
+			cardValue, _ := strconv.Atoi(card.value)
+			value = value + cardValue
+		case "J", "Q", "K":
+			value = value + 10
+		}
+	}
+
+	switch aceCount {
+	case 1:
+		if value+11 <= 21 {
+			value = value + 11
+		} else {
+			value = value + 1
+		}
+	case 2:
+		if value+12 <= 21 {
+			value = value + 12
+		} else {
+			value = value + 2
+		}
+	case 3:
+		if value+13 <= 21 {
+			value = value + 13
+		} else {
+			value = value + 3
+		}
+	case 4:
+		if value+14 <= 21 {
+			value = value + 14
+		} else {
+			value = value + 4
+		}
+	}
+
+	return value
+}
+
 func main() {
 	fmt.Println("Welcome to Blackjack!\n")
 	var deck = newDeck()
 	fmt.Println(deck)
 	fmt.Printf("Deck size: %v\n", len(deck.cards))
 
-	var hand = newHand(deck)
-	fmt.Println(hand)
-	fmt.Printf("Hand size: %v\n", len(hand.cards))
+	var usersHand = newHand(deck)
+	fmt.Println(usersHand)
+	fmt.Printf("User's hand size: %v\n", len(usersHand.cards))
+	fmt.Printf("User's hand value %d\n", usersHand.value())
+
+	fmt.Println(deck)
+	fmt.Printf("Deck size: %v\n", len(deck.cards))
+
+	var dealersHand = newHand(deck)
+	fmt.Println(dealersHand)
+	fmt.Printf("Dealer's hand size: %v\n", len(dealersHand.cards))
+	fmt.Printf("Dealer's hand value %d\n", dealersHand.value())
 
 	fmt.Println(deck)
 	fmt.Printf("Deck size: %v\n", len(deck.cards))
